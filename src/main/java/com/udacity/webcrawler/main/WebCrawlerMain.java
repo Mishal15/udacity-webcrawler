@@ -45,7 +45,11 @@ public final class WebCrawlerMain {
       profiler.writeData(Path.of(config.getProfileOutputPath()));
 
     } else {
-      profiler.writeData(new OutputStreamWriter(System.out));
+      Writer writer = new OutputStreamWriter(System.out);
+
+      profiler.writeData(writer);
+
+      writer.flush();
     }
   }
 

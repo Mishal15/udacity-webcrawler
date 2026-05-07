@@ -31,6 +31,11 @@ final class ProfilingMethodInterceptor implements InvocationHandler {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
+    if (method.getDeclaringClass().equals(Object.class)
+            && method.getName().equals("equals")) {
+      return method.invoke(delegate, args);
+    }
+
     if (!method.isAnnotationPresent(Profiled.class)) {
       return method.invoke(delegate, args);
     }
@@ -38,11 +43,16 @@ final class ProfilingMethodInterceptor implements InvocationHandler {
     Instant start = clock.instant();
 
     try {
+
       return method.invoke(delegate, args);
 
     } catch (InvocationTargetException e) {
 
       throw e.getCause();
+
+    } catch (IllegalAccessException e) {
+
+      throw new RuntimeException(e);
 
     } finally {
 
